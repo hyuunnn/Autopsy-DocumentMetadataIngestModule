@@ -13,3 +13,5 @@ BeautifulSoup4
 PyPDF2
 
 olefile
+
+xmltodict
