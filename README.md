@@ -4,7 +4,7 @@ Autopsy Plugin to extract metadata that exists in document files.
 
 If the document file is corrupted, metadata is extracted by the code developed.
 
-<img src="images/01.png" />
+<img src="images/001.png" />
 
 ### Using Python Modules
 
