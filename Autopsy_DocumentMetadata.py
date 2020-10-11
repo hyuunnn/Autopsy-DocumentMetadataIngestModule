@@ -63,7 +63,6 @@ class DocumentMetadataIngestModule(DataSourceIngestModule):
         self.pdf = PDF()
         self.ooxml = OOXML()
 
-        self.pdf_result = []
         self.xls_result = []
         self.ppt_result = []
         self.doc_result = []
