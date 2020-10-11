@@ -15,3 +15,8 @@ PyPDF2
 olefile
 
 xmltodict
+
+### Author 
+
+* **Hyun Yi**
+* **Beomjun Park**
