@@ -8,13 +8,10 @@ If the document file is corrupted, metadata is extracted by the code developed.
 
 ### Using Python Modules
 
-BeautifulSoup4
-
-PyPDF2
-
-olefile
-
-xmltodict
+* BeautifulSoup4
+* PyPDF2
+* olefile
+* xmltodict
 
 ### Author 
 
