@@ -8,12 +8,12 @@ If the document file is corrupted, metadata is extracted by the code developed.
 
 ### Using Python Modules
 
-* BeautifulSoup4
-* PyPDF2
-* olefile
-* xmltodict
+* <a href="https://pypi.org/project/beautifulsoup4/">BeautifulSoup4</a> : MIT license
+* <a href="https://pypi.org/project/PyPDF2/">PyPDF2</a> : BSD license (UNKNOWN)
+* <a href="https://pypi.org/project/olefile/">olefile</a> : BSD license
+* <a href="https://pypi.org/project/xmltodict/">xmltodict</a> : MIT license
 
-### Author 
+### Authors
 
 * **Hyun Yi**
 * **BeomJun Park**
