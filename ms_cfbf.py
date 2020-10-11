@@ -305,4 +305,9 @@ class CFBF:
 
     def run(self, path):
         self.path = path
-        return self.parseMetadata(self.path)
+        try:
+            ole = olefile.OleFileIO(self.path)
+            return self.ole_meta(ole)
+        except Exception:
+            #print("[*] olefile Error {}".format(path))
+            return self.parseMetadata(self.path)
