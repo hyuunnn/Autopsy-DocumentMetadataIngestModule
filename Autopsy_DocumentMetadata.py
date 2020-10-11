@@ -63,10 +63,15 @@ class DocumentMetadataIngestModule(DataSourceIngestModule):
         self.pdf = PDF()
         self.ooxml = OOXML()
 
-        self.CFBF_result = []
+        self.pdf_result = []
+        self.xls_result = []
+        self.ppt_result = []
+        self.doc_result = []
+        self.xlsx_result = []
+        self.pptx_result = []
+        self.docx_result = []
         self.PyPDF_result = []
         self.PDFNoModule_result = []
-        self.OOXML_result = []
 
     def startUp(self, context):
         self.context = context
@@ -81,23 +86,23 @@ class DocumentMetadataIngestModule(DataSourceIngestModule):
                 titles.append(j)
         return list(set(titles))
 
-    def addData(self, titles, result, datatype, skCase):
+    def addData(self, titles, result, filetype, skCase):
         for title in titles:
             try:
-                attID = skCase.addArtifactAttributeType("TSK_"+str(title), BlackboardAttribute.TSK_BLACKBOARD_ATTRIBUTE_VALUE_TYPE.STRING, unicode(title))
-                artID_art = skCase.addBlackboardArtifactType("TSK_"+datatype+"_DATA", datatype)
+                attID = skCase.addArtifactAttributeType("TSK_"+filetype+"_"+str(title), BlackboardAttribute.TSK_BLACKBOARD_ATTRIBUTE_VALUE_TYPE.STRING, unicode(title))
+                artID_art = skCase.addBlackboardArtifactType("TSK_"+filetype+"_DATA", filetype)
             except:
                 pass
 
-        getArtId = skCase.getArtifactTypeID("TSK_"+datatype+"_DATA")
+        getArtId = skCase.getArtifactTypeID("TSK_"+filetype+"_DATA")
 
         for i in result:
             art = i["handle"].newArtifact(getArtId)
             for title in titles:
                 try:
-                    art.addAttribute(BlackboardAttribute(skCase.getAttributeType("TSK_"+str(title)), DocumentMetadataIngestModuleFactory.moduleName, unicode(i[title])))
+                    art.addAttribute(BlackboardAttribute(skCase.getAttributeType("TSK_"+filetype+"_"+str(title)), DocumentMetadataIngestModuleFactory.moduleName, unicode(i[title])))
                 except:
-                    art.addAttribute(BlackboardAttribute(skCase.getAttributeType("TSK_"+str(title)), DocumentMetadataIngestModuleFactory.moduleName, ""))
+                    art.addAttribute(BlackboardAttribute(skCase.getAttributeType("TSK_"+filetype+"_"+str(title)), DocumentMetadataIngestModuleFactory.moduleName, ""))
 
     def startModule(self, extension, skCase, fileManager, dataSource, progressBar):
         files = fileManager.findFiles(dataSource, "%." + extension)
@@ -111,15 +116,15 @@ class DocumentMetadataIngestModule(DataSourceIngestModule):
         except:
             pass
 
-        if extension.lower() == "pdf":
-            for file in files:
-                self.log(Level.INFO, "Processing file: " + file.getName())
-                fileCount += 1
-                self.totalCount += 1
+        for file in files:
+            self.log(Level.INFO, "Processing file: " + file.getName())
+            fileCount += 1
+            self.totalCount += 1
 
-                Path = os.path.join(Directory, unicode(file.getName()))
-                ContentUtils.writeToFile(file, File(Path))
+            Path = os.path.join(Directory, unicode(file.getName()))
+            ContentUtils.writeToFile(file, File(Path))
 
+            if extension.lower() == "pdf":
                 try:
                     resultPDF, resultNoModule = self.pdf.run(Path)
                     resultPDF["handle"] = file
@@ -128,52 +133,87 @@ class DocumentMetadataIngestModule(DataSourceIngestModule):
                     self.PDFNoModule_result.append(resultNoModule)
                 except:
                     pass
-                progressBar.progress(fileCount)
 
+            elif extension.lower() == "xlsx":
+                try:
+                    OOXML = self.ooxml.run(Path)
+                    OOXML["handle"] = file
+                    self.xlsx_result.append(OOXML)
+                except:
+                    pass
+
+            elif extension.lower() == "pptx":
+                try:
+                    OOXML = self.ooxml.run(Path)
+                    OOXML["handle"] = file
+                    self.pptx_result.append(OOXML)
+                except:
+                    pass
+
+            elif extension.lower() == "docx":
+                try:
+                    OOXML = self.ooxml.run(Path)
+                    OOXML["handle"] = file
+                    self.docx_result.append(OOXML)
+                except:
+                    pass
+
+            elif extension.lower() == "xls":
+                try:
+                    resultCFBF = self.cfbf.run(Path)
+                    resultCFBF["handle"] = file
+                    self.xls_result.append(resultCFBF)
+                except:
+                    pass
+
+            elif extension.lower() == "ppt":
+                try:
+                    resultCFBF = self.cfbf.run(Path)
+                    resultCFBF["handle"] = file
+                    self.ppt_result.append(resultCFBF)
+                except:
+                    pass
+
+            elif extension.lower() == "doc":
+                try:
+                    resultCFBF = self.cfbf.run(Path)
+                    resultCFBF["handle"] = file
+                    self.doc_result.append(resultCFBF)
+                except:
+                    pass
+
+            progressBar.progress(fileCount)
+
+
+        if extension.lower() == "pdf":
             titles = self.getTitles(self.PyPDF_result)
             self.addData(titles, self.PyPDF_result, "PyPDF", skCase)
             titles = self.getTitles(self.PDFNoModule_result)
             self.addData(titles, self.PDFNoModule_result, "PDFNoModule", skCase)
 
-        elif any(x in extension.lower() for x in ["docx", "pptx", "xlsx"]):
-            for file in files:
-                self.log(Level.INFO, "Processing file: " + file.getName())
-                fileCount += 1
-                self.totalCount += 1
-
-                Path = os.path.join(Directory, unicode(file.getName()))
-                ContentUtils.writeToFile(file, File(Path))
-
-                try:
-                    OOXML = self.ooxml.run(Path)
-                    OOXML["handle"] = file
-                    self.OOXML_result.append(OOXML)
-                except:
-                    pass
-                progressBar.progress(fileCount)
-
-            titles = self.getTitles(self.OOXML_result)
-            self.addData(titles, self.OOXML_result, "OOXML", skCase)
+        elif extension.lower() == "xlsx":
+            titles = self.getTitles(self.xlsx_result)
+            self.addData(titles, self.xlsx_result, "XLSX", skCase)
         
-        elif any(x in extension.lower() for x in ["doc", "ppt", "xls"]):
-            for file in files:
-                self.log(Level.INFO, "Processing file: " + file.getName())
-                fileCount += 1
-                self.totalCount += 1
+        elif extension.lower() == "pptx":
+            titles = self.getTitles(self.pptx_result)
+            self.addData(titles, self.pptx_result, "PPTX", skCase)
+        
+        elif extension.lower() == "docx":
+            titles = self.getTitles(self.docx_result)
+            self.addData(titles, self.docx_result, "DOCX", skCase)
 
-                Path = os.path.join(Directory, unicode(file.getName()))
-                ContentUtils.writeToFile(file, File(Path))
+        elif extension.lower() == "xls":
+            titles = self.getTitles(self.xls_result)
+            self.addData(titles, self.xls_result, "XLS", skCase)
 
-                try:
-                    resultCFBF = self.cfbf.run(Path)
-                    resultCFBF["handle"] = file
-                    self.CFBF_result.append(resultCFBF)
-                except:
-                    pass
-                progressBar.progress(fileCount)
+        elif extension.lower() == "ppt":
+            titles = self.getTitles(self.ppt_result)
+            self.addData(titles, self.ppt_result, "PPT", skCase)
 
-            titles = self.getTitles(self.CFBF_result)
-            self.addData(titles, self.CFBF_result, "CFBF", skCase)
+        elif extension.lower() == "doc":
+            titles = self.getTitles(self.doc_result)
+            self.addData(titles, self.doc_result, "DOC", skCase)
 
 
     def process(self, dataSource, progressBar):
