@@ -16,4 +16,4 @@ If the document file is corrupted, metadata is extracted by the code developed.
 ### Author 
 
 * **Hyun Yi**
-* **Beomjun Park**
+* **BeomJun Park**
